@@ -2,19 +2,18 @@ from flasgger import Swagger
 from flask import Flask
 
 from db import db  # 导入 db
-from routes.register import register_bp
-from routes.login import login_bp
-# from routes.get_products import get_products_bp
-from routes.add_product import add_product_bp
-from routes.create_order import create_order_bp
-from routes.payment import payment_bp
-from routes.add_balance import add_balance_bp
-from routes.get_products import get_products_bp
-from routes.flash_sale import flash_sale_bp
-from routes.delete_product import delete_product_bp
-from routes.update_product_stock import update_product_stock_bp
-from routes.add_to_cart import add_to_cart_bp
-from routes.get_userInfo import user_info_bp
+from routes.userServices.register import register_bp
+from routes.userServices.login import login_bp
+from routes.productServices.add_product import add_product_bp
+from routes.orderServices.create_order import create_order_bp
+from routes.orderServices.payment import payment_bp
+from routes.adminServices.add_balance import add_balance_bp
+from routes.productServices.get_products import get_products_bp
+from routes.flashSale.flash_sale import flash_sale_bp
+from routes.productServices.delete_product import delete_product_bp
+from routes.productServices.update_product_stock import update_product_stock_bp
+from routes.cartServices.add_to_cart import add_to_cart_bp
+from routes.userServices.get_userInfo import user_info_bp
 
 # 其他导入...
 

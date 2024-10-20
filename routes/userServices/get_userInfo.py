@@ -59,6 +59,7 @@ def get_user_info():
 
     response = {
         'user_id': user.id,
+        "nickname": user.nickname,
         'balance': user.balance,
         'pending_orders': [
             {

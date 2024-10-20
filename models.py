@@ -1,5 +1,7 @@
+import string
 from db import db  # 从 db 导入已初始化的 db 实例
 from datetime import datetime
+import random
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,6 +16,11 @@ class User(db.Model):
     token = db.Column(db.String(120), unique=True, nullable=True)  # 登录后存储JWT token
     balance = db.Column(db.Float, default=0.0)  # 新增字段，用户余额
     role = db.Column(db.Integer, default=1)  # 权限字段，0为管理员，1为顾客
+    nickname = db.Column(db.String(120), nullable=False)  # 新增昵称字段
+
+    def generate_default_nickname(self):
+        random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        return f"用户{random_str}"
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -48,13 +48,16 @@ def login():
     if not user or not check_password_hash(user.password_hash, data['password']):
         return jsonify({"message": "Invalid credentials!"}), 401
 
-    # 生成JWT token
     token = jwt.encode({
         'user_id': user.id,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    }, current_app.config['SECRET_KEY'], algorithm="HS256")  # 使用 current_app
+    }, 'your_secret_key', algorithm="HS256")
 
-    user.token = token  # 储存生成的 token
+    user.token = token
     db.session.commit()
 
-    return jsonify({"token": token}), 200
+    return jsonify({
+        "message": "Login successful",
+        "token": token,
+        "nickname": user.nickname
+    }), 200
