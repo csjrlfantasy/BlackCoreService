@@ -8,7 +8,7 @@ register_bp = Blueprint('register', __name__)
 
 @register_bp.route('/register', methods=['POST'])
 @swag_from({
-    'summary': 'User Registration',
+    'summary': '用户注册接口',
     'description': 'Register a new user with username, password, and role.',
     'parameters': [
         {
@@ -46,7 +46,7 @@ def register():
     # 检查用户名是否已存在
     existing_user = User.query.filter_by(username=data['username']).first()
     if existing_user:
-        return jsonify({"message": "Username already exists!"}), 400
+        return jsonify({"message": "用户名已存在"}), 400
 
     # 获取并加密密码
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
@@ -55,11 +55,11 @@ def register():
     role = data.get('role', 1)
 
     if role not in [0, 1]:  # 确保role字段只有0或1的值
-        return jsonify({"message": "Invalid role value"}), 400
+        return jsonify({"message": "非法的角色Id"}), 400
 
     # 创建新用户
     new_user = User(username=data['username'], password_hash=hashed_password, token="", role=role)
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully!"}), 201
+    return jsonify({"message": "用户注册成功!"}), 201

@@ -41,7 +41,7 @@ get_products_bp = Blueprint('get_products', __name__)
             }
         },
         404: {
-            'description': 'Product not found'
+            'description': '商品未找到'
         }
     }
 })
@@ -58,7 +58,7 @@ def get_products():
                 'stock': product.stock
             }), 200
         else:
-            return jsonify({"message": "Product not found!"}), 404
+            return jsonify({"message": "商品未找到"}), 404
     else:
         products = Product.query.all()
         return jsonify([{

@@ -10,7 +10,7 @@ login_bp = Blueprint('login', __name__)
 
 @login_bp.route('/login', methods=['POST'])
 @swag_from({
-    'summary': 'User Login',
+    'summary': '用户登录',
     'description': 'Login and obtain JWT token.',
     'parameters': [
         {

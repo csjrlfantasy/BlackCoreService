@@ -14,6 +14,7 @@ from routes.flash_sale import flash_sale_bp
 from routes.delete_product import delete_product_bp
 from routes.update_product_stock import update_product_stock_bp
 from routes.add_to_cart import add_to_cart_bp
+from routes.get_userInfo import user_info_bp
 
 # 其他导入...
 
@@ -35,6 +36,7 @@ app.register_blueprint(flash_sale_bp)
 app.register_blueprint(delete_product_bp)
 app.register_blueprint(update_product_stock_bp)
 app.register_blueprint(add_to_cart_bp)
+app.register_blueprint(user_info_bp)
 
 swagger = Swagger(app)
 

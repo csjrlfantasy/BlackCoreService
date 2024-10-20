@@ -6,7 +6,7 @@ delete_product_bp = Blueprint('delete_product', __name__)
 
 @delete_product_bp.route('/delete_product/<int:product_id>', methods=['DELETE'])
 @swag_from({
-    'summary': 'Delete a product',
+    'summary': '删除一个商品',
     'description': 'This endpoint deletes a product by its ID.',
     'parameters': [
         {
@@ -49,12 +49,12 @@ def delete_product(product_id):
     product = Product.query.get(product_id)
 
     if not product:
-        return jsonify({"error": "Product not found"}), 404
+        return jsonify({"error": "商品未找到"}), 404
 
     try:
         db.session.delete(product)
         db.session.commit()
-        return jsonify({"message": "Product deleted successfully"}), 200
+        return jsonify({"message": "商品删除成功"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Failed to delete product", "details": str(e)}), 500
+        return jsonify({"error": "删除商品失败！", "details": str(e)}), 500
