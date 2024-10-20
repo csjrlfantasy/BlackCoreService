@@ -1,0 +1,5 @@
+[2024-10-11 09:00:00] INFO: System starting up.
+[2024-10-11 09:00:01] DEBUG: Initializing core modules.
+[2024-10-11 09:00:05] INFO: Core modules initialized successfully.
+[2024-10-11 09:00:06] DEBUG: Loading configuration file /etc/config.ini.
+[2024-10-11 09:00:10] e: Configuration file loaded successfully. Read config items: [server] address=192.168.1.100, port=8080.
