@@ -1,0 +1,1 @@
+from .flash_sale import flash_sale_bp

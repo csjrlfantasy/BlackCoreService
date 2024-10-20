@@ -5,11 +5,10 @@ from models import db, User
 
 register_bp = Blueprint('register', __name__)
 
-
 @register_bp.route('/register', methods=['POST'])
 @swag_from({
-    'summary': '用户注册接口',
-    'description': 'Register a new user with username, password, and role.',
+    'summary': 'User Registration',
+    'description': 'Register a new user with username, password, and optional nickname.',
     'parameters': [
         {
             'name': 'body',
@@ -20,7 +19,7 @@ register_bp = Blueprint('register', __name__)
                 'properties': {
                     'username': {'type': 'string', 'example': 'user1'},
                     'password': {'type': 'string', 'example': 'password123'},
-                    'role': {'type': 'integer', 'example': 1, 'description': '0 for admin, 1 for customer (default)'}
+                    'nickname': {'type': 'string', 'example': ''}
                 },
                 'required': ['username', 'password']
             }
@@ -31,7 +30,9 @@ register_bp = Blueprint('register', __name__)
             'description': 'User registered successfully',
             'examples': {
                 'application/json': {
-                    'message': 'User registered successfully!'
+                    'message': 'User registered successfully!',
+                    'user_id': 1,
+                    'nickname': ''
                 }
             }
         },
@@ -42,24 +43,30 @@ register_bp = Blueprint('register', __name__)
 })
 def register():
     data = request.json
-
-    # 检查用户名是否已存在
     existing_user = User.query.filter_by(username=data['username']).first()
-    if existing_user:
-        return jsonify({"message": "用户名已存在"}), 400
 
-    # 获取并加密密码
+    if existing_user:
+        return jsonify({"message": "Username already exists!"}), 400
+
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
-    # 获取传递的角色，如果没有传递则默认设置为1（普通用户）
-    role = data.get('role', 1)
+    # 使用提供的昵称，若未提供则生成默认昵称
+    nickname = data.get('nickname', None)
+    if not nickname:
+        nickname = User().generate_default_nickname()
 
-    if role not in [0, 1]:  # 确保role字段只有0或1的值
-        return jsonify({"message": "非法的角色Id"}), 400
+    new_user = User(
+        username=data['username'],
+        password_hash=hashed_password,
+        nickname=nickname,
+        token=""
+    )
 
-    # 创建新用户
-    new_user = User(username=data['username'], password_hash=hashed_password, token="", role=role)
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "用户注册成功!"}), 201
+    return jsonify({
+        "message": "User registered successfully!",
+        "user_id": new_user.id,
+        "nickname": new_user.nickname
+    }), 201
