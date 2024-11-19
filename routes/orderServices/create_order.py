@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from models import db, User, Product, Order, Cart
+from plugin.auth import extract_token
 
 create_order_bp = Blueprint('create_order', __name__)
 
@@ -32,7 +33,7 @@ create_order_bp = Blueprint('create_order', __name__)
     }
 })
 def create_order():
-    token = request.headers.get('Authorization')
+    token = extract_token(request)
     user = User.query.filter_by(token=token).first()
 
     if not user:

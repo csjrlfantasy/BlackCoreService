@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from models import db,User, Product, Order, FlashSaleOrder
+from plugin.auth import extract_token
 from plugin.stock_checker import check_product_stock
 from datetime import datetime
+import time
 import requests
-
-
 flash_sale_bp = Blueprint('flash_sale', __name__)
 
 @flash_sale_bp.route('/flash_sale', methods=['POST'])
@@ -37,7 +37,8 @@ flash_sale_bp = Blueprint('flash_sale', __name__)
     }
 })
 def flash_sale():
-    token = request.headers.get('Authorization')
+    token = extract_token(request)
+
     user = User.query.filter_by(token=token).first()
 
     if not user:
@@ -58,16 +59,16 @@ def flash_sale():
     if not check_product_stock(data['product_id'], data['quantity']):
         return jsonify({"error": "Insufficient stock"}), 400
 
-    # 调用外部服务进行处理
-    external_service_url = "http://localhost:5001/validate_order"
-    response = requests.get(external_service_url)
-
-    if response.status_code != 200:
-        return jsonify({"error": "External service error", "details": response.json()}), 503
-
-    response_data = response.json()
-    if not response_data.get("valid", False):
-        return jsonify({"error": "Order is invalid"}), 400
+    # # 调用外部服务进行处理
+    # external_service_url = "http://localhost:5001/validate_order"
+    # response = requests.get(external_service_url)
+    #
+    # if response.status_code != 200:
+    #     return jsonify({"error": "External service error", "details": response.json()}), 503
+    #
+    # response_data = response.json()
+    # if not response_data.get("valid", False):
+    #     return jsonify({"error": "Order is invalid"}), 400
 
     # 扣除余额和更新库存
     try:
@@ -90,5 +91,5 @@ def flash_sale():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Database error", "details": str(e)}), 500
-
+    time.sleep(0.2)
     return jsonify({"message": "Order created successfully"}), 201  # 确保在成功时返回响应

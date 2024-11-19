@@ -3,7 +3,7 @@
 from flask import Blueprint, request, jsonify
 from models import db, Product
 from flasgger import swag_from
-from plugin.auth import check_admin_role  # 引入权限检查模块
+from plugin.auth import check_admin_role, extract_token  # 引入权限检查模块
 
 update_product_stock_bp = Blueprint('update_product_stock', __name__)
 
@@ -73,7 +73,8 @@ update_product_stock_bp = Blueprint('update_product_stock', __name__)
 })
 def update_product_stock(product_id):
     # 从请求头中获取token并检查管理员权限
-    token = request.headers.get('Authorization')
+    token = extract_token(request)
+
     admin_check = check_admin_role(token)
     if admin_check:
         return admin_check  # 如果权限不通过，直接返回相应的错误

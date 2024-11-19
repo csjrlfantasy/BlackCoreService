@@ -12,3 +12,10 @@ def check_admin_role(token):
         return jsonify({"error": "Unauthorized access. Admins only."}), 403
 
     return None  # 表示通过了检查
+
+def extract_token(request):
+    token = request.headers.get('Authorization')
+    if token and token.startswith('Bearer '):
+        return token[7:]
+    else:
+        return None

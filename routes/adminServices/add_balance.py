@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from models import db, User
+from plugin.auth import extract_token
 
 add_balance_bp = Blueprint('add_balance', __name__)
 
@@ -43,7 +44,7 @@ add_balance_bp = Blueprint('add_balance', __name__)
 })
 def add_balance():
     # 获取管理员 token
-    admin_token = request.headers.get('Authorization')
+    admin_token = extract_token(request)
     admin_user = User.query.filter_by(token=admin_token).first()
 
     # 检查是否是管理员

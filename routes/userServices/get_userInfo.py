@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models import db, User, Order, Cart, CartItem
 from flasgger import swag_from
-
+from plugin.auth import extract_token
+import time
 user_info_bp = Blueprint('user_info', __name__)
 
 @user_info_bp.route('/user_info', methods=['GET'])
@@ -44,7 +45,7 @@ user_info_bp = Blueprint('user_info', __name__)
     }
 })
 def get_user_info():
-    token = request.headers.get('Authorization')
+    token = extract_token(request)
     user = User.query.filter_by(token=token).first()
 
     if not user:
@@ -88,5 +89,5 @@ def get_user_info():
             ] if active_cart else []
         }
     }
-
+    time.sleep(0.3)
     return jsonify(response), 200

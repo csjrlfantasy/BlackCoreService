@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from models import db, User, Order
 from flasgger import swag_from
 
+from plugin.auth import extract_token
+
 payment_bp = Blueprint('payment', __name__)
 
 @payment_bp.route('/pay', methods=['POST'])
@@ -38,11 +40,11 @@ payment_bp = Blueprint('payment', __name__)
 def pay():
     data = request.json
     main_order_id = data.get('main_order_id')
-
+    print("=============",main_order_id)
     if not main_order_id:
         return jsonify({"error": "Main Order ID is required"}), 400
 
-    token = request.headers.get('Authorization')
+    token = extract_token(request)
     user = User.query.filter_by(token=token).first()
 
     if not user:

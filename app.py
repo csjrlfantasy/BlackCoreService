@@ -14,6 +14,8 @@ from routes.productServices.delete_product import delete_product_bp
 from routes.productServices.update_product_stock import update_product_stock_bp
 from routes.cartServices.add_to_cart import add_to_cart_bp
 from routes.userServices.get_userInfo import user_info_bp
+from routes.signServices.agreement_sign import agreement_sign_bp
+
 
 # 其他导入...
 
@@ -36,10 +38,11 @@ app.register_blueprint(delete_product_bp)
 app.register_blueprint(update_product_stock_bp)
 app.register_blueprint(add_to_cart_bp)
 app.register_blueprint(user_info_bp)
+app.register_blueprint(agreement_sign_bp)
 
 swagger = Swagger(app)
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # 创建数据库表
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

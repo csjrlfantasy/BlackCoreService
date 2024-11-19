@@ -3,6 +3,8 @@ from models import db, User, Product, Cart, CartItem
 from datetime import datetime
 from flasgger import swag_from
 
+from plugin.auth import extract_token
+
 add_to_cart_bp = Blueprint('add_to_cart', __name__)
 
 
@@ -46,11 +48,18 @@ add_to_cart_bp = Blueprint('add_to_cart', __name__)
     }
 })
 def add_to_cart():
-    token = request.headers.get('Authorization')
-    user = User.query.filter_by(token=token).first()
+    token = extract_token(request)
+    print("token是===============",token)
+    try:
+        # user = User.query.filter_by(token=token).first()
+        user = get_user_with_retries(token)
 
-    if not user:
-        return jsonify({"error": "Invalid token"}), 400
+        print(user)
+        if not user:
+            return jsonify({"error": "~~~~Invalid token"}), 400
+    except Exception as e:
+        # 捕获其他异常
+        return jsonify({"error": "An unexpected error occurred.", "details": str(e)}), 500
 
     data = request.json
     items = data.get('items', [])
@@ -102,3 +111,15 @@ def add_to_cart():
         "total_price": total_price,
         "items": cart_items_info
     }), 201
+
+
+import time
+
+def get_user_with_retries(token, retries=3, delay=0.1):
+    for attempt in range(retries):
+        user = User.query.filter_by(token=token).first()
+        if user:
+            return user
+        time.sleep(delay)  # 等待后重试
+    return None
+
