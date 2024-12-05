@@ -17,7 +17,7 @@ from routes.userServices.get_userInfo import user_info_bp
 from routes.signServices.agreement_sign import agreement_sign_bp
 
 
-# 其他导入...
+# 其他 导入...
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:heihe123456@localhost/heihe_mall'
