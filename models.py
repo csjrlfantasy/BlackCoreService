@@ -15,7 +15,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(120), nullable=False)  # 储存加密后的密码
     token = db.Column(db.String(120), unique=True, nullable=True)  # 登录后存储JWT token
     balance = db.Column(db.Float, default=0.0)  # 新增字段，用户余额
-    role = db.Column(db.Integer, default=1)  # 权限字段，0为管理员，1为顾客
+    role = db.Column(db.Integer, default=1)  # 权限字段，0为 管理员，1为顾客
     nickname = db.Column(db.String(120), nullable=False)  # 新增昵称字段
 
     def generate_default_nickname(self):
