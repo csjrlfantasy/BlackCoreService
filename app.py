@@ -24,6 +24,24 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:heihe123456@localh
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 
+# 配置Flasgger的Swagger相关设置，修改这里的title等属性来改变顶部文字
+app.config['SWAGGER'] = {
+    'title': '黑核商城接口文档',  # 修改为你想要的标题，这个会显示在Swagger UI顶部
+    'uiversion': 3,  # 可以指定Swagger UI的版本，这里示例设为3
+    'description': '这里是关于本接口文档的详细描述内容，可以介绍接口功能、使用场景等信息',
+    'termsOfService': "",  # 服务条款相关链接，可按需填写
+    'contact': {
+        'name': '联系人姓名（可选）',
+        'url': '联系人网址（可选）',
+        'email': '联系人邮箱（可选）'
+    },
+    'license': {
+        'name': '许可证名称（可选）',
+        'url': '许可证相关网址（可选）'
+    }
+}
+
+
 db.init_app(app)  # 初始化应用
 # 注册蓝图
 app.register_blueprint(add_balance_bp)
