@@ -8,9 +8,10 @@ from db import db  # 导入 db
 
 login_bp = Blueprint('login', __name__)
 
-@login_bp.route('/login', methods=['POST'])
+@login_bp.route('/user_services/login', methods=['POST'])
 @swag_from({
     'summary': '用户登录',
+    'tags': ['用户管理服务'],
     'description': 'Login and obtain JWT token.',
     'parameters': [
         {

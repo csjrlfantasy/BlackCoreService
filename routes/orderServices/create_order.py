@@ -8,6 +8,8 @@ create_order_bp = Blueprint('create_order', __name__)
 
 @create_order_bp.route('/order', methods=['POST'])
 @swag_from({
+    'tags': ['订单管理'],
+    'summary': '创建订单',
     'parameters': [
         {
             'name': 'Authorization',

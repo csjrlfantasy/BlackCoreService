@@ -7,9 +7,10 @@ from plugin.auth import check_admin_role, extract_token  # 引入权限检查模
 
 update_product_stock_bp = Blueprint('update_product_stock', __name__)
 
-@update_product_stock_bp.route('/update_product_stock/<int:product_id>', methods=['PUT'])
+@update_product_stock_bp.route('/product_services/update_product_stock/<int:product_id>', methods=['PUT'])
 @swag_from({
-    'summary': 'Update product stock',
+    'summary': '更新商品库存',
+    'tags': ['商品管理服务'],
     'description': 'This endpoint updates the stock of a product by its ID. Admin token is required.',
     'parameters': [
         {

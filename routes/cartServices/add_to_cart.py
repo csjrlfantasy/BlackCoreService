@@ -10,7 +10,8 @@ add_to_cart_bp = Blueprint('add_to_cart', __name__)
 
 @add_to_cart_bp.route('/add_to_cart', methods=['POST'])
 @swag_from({
-    'summary': 'Add items to cart',
+    'summary': '添加到购物车',
+    'tags': ['购物车管理服务'],
     'description': 'Add multiple products to the cart and calculate total price.',
     'parameters': [
         {

@@ -7,7 +7,8 @@ add_balance_bp = Blueprint('add_balance', __name__)
 
 @add_balance_bp.route('/add_balance', methods=['POST'])
 @swag_from({
-    'summary': 'Add Balance to User Account (Admin only)',
+    'summary': '增加用户余额',
+    'tags': ['管理员权限服务'],
     'description': 'Recharge user account balance by admin.',
     'parameters': [
         {

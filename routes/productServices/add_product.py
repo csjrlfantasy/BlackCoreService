@@ -8,7 +8,8 @@ add_product_bp = Blueprint('add_product', __name__)
 
 @add_product_bp.route('/add_product', methods=['POST'])
 @swag_from({
-    'summary': 'Add a new product',
+    'summary': '增加商品种类',
+    'tags': ['商品管理服务'],
     'description': 'Add a new product to the inventory.',
     'parameters': [
         {

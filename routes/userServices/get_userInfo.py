@@ -5,9 +5,10 @@ from plugin.auth import extract_token
 import time
 user_info_bp = Blueprint('user_info', __name__)
 
-@user_info_bp.route('/user_info', methods=['GET'])
+@user_info_bp.route('/user_services/user_info', methods=['GET'])
 @swag_from({
-    'summary': 'Get User Information',
+    'summary': '获取用户信息',
+    'tags': ['用户管理服务'],
     'description': 'Display user information, including balance, pending and completed orders, and active carts.',
     'parameters': [
         {
