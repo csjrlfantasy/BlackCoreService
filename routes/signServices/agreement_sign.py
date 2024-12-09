@@ -12,7 +12,8 @@ agreement_sign_bp = Blueprint('agreement_sign', __name__)
 
 @agreement_sign_bp.route('/agreementSign', methods=['POST'])
 @swag_from({
-    'summary': 'Agreement Pre-Sign',
+    'summary': '签约服务接口',
+    'tags': ['签约管理服务'],
     'description': 'Initiates an agreement pre-sign process.',
     'parameters': [
         {

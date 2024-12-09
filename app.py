@@ -15,7 +15,7 @@ from routes.productServices.update_product_stock import update_product_stock_bp
 from routes.cartServices.add_to_cart import add_to_cart_bp
 from routes.userServices.get_userInfo import user_info_bp
 from routes.signServices.agreement_sign import agreement_sign_bp
-
+from routes.orderServices.get_order import get_order_bp
 
 # 其他 导入...
 
@@ -57,7 +57,7 @@ app.register_blueprint(update_product_stock_bp)
 app.register_blueprint(add_to_cart_bp)
 app.register_blueprint(user_info_bp)
 app.register_blueprint(agreement_sign_bp)
-
+app.register_blueprint(get_order_bp)
 swagger = Swagger(app)
 
 if __name__ == '__main__':

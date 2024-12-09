@@ -4,9 +4,10 @@ from flasgger import swag_from
 
 delete_product_bp = Blueprint('delete_product', __name__)
 
-@delete_product_bp.route('/delete_product/<int:product_id>', methods=['DELETE'])
+@delete_product_bp.route('/product_services/delete_product/<int:product_id>', methods=['DELETE'])
 @swag_from({
-    'summary': '删除一个商品',
+    'summary': '删除商品种类',
+    'tags': ['商品管理服务'],
     'description': 'This endpoint deletes a product by its ID.',
     'parameters': [
         {

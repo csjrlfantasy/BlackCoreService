@@ -14,8 +14,13 @@ def check_admin_role(token):
     return None  # 表示通过了检查
 
 def extract_token(request):
-    token = request.headers.get('Authorization')
-    if token and token.startswith('Bearer '):
-        return token[7:]
-    else:
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
         return None
+    
+    # 支持 "Bearer token" 格式
+    parts = auth_header.split()
+    if len(parts) == 2 and parts[0].lower() == 'bearer':
+        return parts[1]
+    
+    return auth_header  # 如果没有使用Bearer格式，直接返回整个header值

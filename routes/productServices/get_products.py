@@ -6,9 +6,10 @@ from db import db
 
 get_products_bp = Blueprint('get_products', __name__)
 
-@get_products_bp.route('/products', methods=['GET'])
+@get_products_bp.route('/product_services/products', methods=['GET'])
 @swag_from({
-    'summary': 'Get Products',
+    'summary': '查询商品种类',
+    'tags': ['商品管理服务'],
     'description': 'Retrieve all products or a specific product by ID.',
     'parameters': [
         {

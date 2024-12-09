@@ -5,9 +5,10 @@ from models import db, User
 
 register_bp = Blueprint('register', __name__)
 
-@register_bp.route('/register', methods=['POST'])
+@register_bp.route('/user_services/register', methods=['POST'])
 @swag_from({
-    'summary': 'User Registration',
+    'summary': '用户注册',
+    'tags': ['用户管理服务'],
     'description': 'Register a new user with username, password, and optional nickname.',
     'parameters': [
         {
