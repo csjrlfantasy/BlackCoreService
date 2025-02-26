@@ -39,7 +39,7 @@ class Order(db.Model):
     payment_status = db.Column(db.Integer, default=0)  # 0: 未支付, 1: 已支付
     main_order_id = db.Column(db.String(50), nullable=True)
     product_price = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='pending')  # 添加 status 列
+    status = db.Column(db.Integer, nullable=False, default=0)  # 添加 status 列
 
     # 关系定义
     product = db.relationship('Product', backref='orders')
@@ -110,8 +110,8 @@ class GetOrder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     main_order_id = db.Column(db.String(32), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # 修改为 'user.id'
-    total_amount = db.Column(db.Numeric(10, 2), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='pending')  # 添加状态字段
+    total_amount = db.Column(db.Numeric(10, 2),default=0, nullable=False)
+    status = db.Column(db.Integer, nullable=False, default=0)  # 添加状态字段
     create_time = db.Column(db.DateTime, default=datetime.now)
     update_time = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
