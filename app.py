@@ -16,8 +16,7 @@ from routes.cartServices.add_to_cart import add_to_cart_bp
 from routes.userServices.get_userInfo import user_info_bp
 from routes.signServices.agreement_sign import agreement_sign_bp
 from routes.orderServices.get_order import get_order_bp
-
-# 其他 导入...
+from routes.productServices.generate_sign import generate_sign  # noqa: F401
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:heihe123456@localhost/heihe_mall'
