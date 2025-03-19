@@ -2,6 +2,8 @@ import string
 from db import db  # 从 db 导入已初始化的 db 实例
 from datetime import datetime
 import random
+# 在顶部导入部分添加 timedelta（第4行）
+from datetime import datetime, timedelta
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -10,6 +12,9 @@ class Product(db.Model):
     stock = db.Column(db.Integer, nullable=False)
 
 class User(db.Model):
+    __tablename__ = 'user'  # 明确指定表名为user
+    __table_args__ = {'extend_existing': True}  # 允许扩展现有表
+    
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
@@ -17,13 +22,13 @@ class User(db.Model):
     balance = db.Column(db.Float, default=0.0)
     role = db.Column(db.Integer, default=1)
     nickname = db.Column(db.String(120), nullable=False)
-
+    
     # 添加这个关系定义
     get_order = db.relationship(
         "GetOrder",
         overlaps="orders,user,get_orders"
     )
-
+    
     def generate_default_nickname(self):
         random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
         return f"用户{random_str}"
@@ -162,3 +167,26 @@ class GetOrder(db.Model):
             order_products.c.product_id == product_id
         ).first()
         return result[0] if result else 0
+
+
+class Session(db.Model):
+    __tablename__ = 'sessions'
+    __table_args__ = (
+        db.UniqueConstraint('user_id', name='uq_user_session'),  # 添加唯一约束
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_token = db.Column(db.String(120), unique=True, nullable=False)
+    token_expiry = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('sessions', lazy='dynamic'))
+    
+    def __init__(self, user):
+        import secrets
+        self.user_id = user.id
+        self.session_token = secrets.token_urlsafe(32)
+        self.token_expiry = datetime.utcnow() + timedelta(hours=24)  # 现在可以正确使用 timedelta
+    
+    def __repr__(self):
+        return f"<Session {self.id} user:{self.user_id} expires:{self.token_expiry}>"

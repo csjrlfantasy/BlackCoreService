@@ -17,6 +17,10 @@ from routes.userServices.get_userInfo import user_info_bp
 from routes.signServices.agreement_sign import agreement_sign_bp
 from routes.orderServices.get_order import get_order_bp
 from routes.productServices.generate_sign import generate_sign  # noqa: F401
+from routes.productServices.file_handling import file_bp
+from routes.userServices.cookie_login import cookie_login_bp
+from routes.userServices.cookie_test import cookie_test_bp
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:heihe123456@localhost/heihe_mall'
@@ -57,6 +61,11 @@ app.register_blueprint(add_to_cart_bp)
 app.register_blueprint(user_info_bp)
 app.register_blueprint(agreement_sign_bp)
 app.register_blueprint(get_order_bp)
+app.register_blueprint(file_bp)
+app.register_blueprint(cookie_login_bp)
+# 在注册蓝图部分添加
+app.register_blueprint(cookie_test_bp)
+
 swagger = Swagger(app)
 
 if __name__ == '__main__':

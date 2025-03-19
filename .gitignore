@@ -28,3 +28,7 @@ routes/userServices/__pycache__/__init__.cpython-311.pyc
 routes/userServices/__pycache__/get_userInfo.cpython-311.pyc
 routes/userServices/__pycache__/login.cpython-311.pyc
 routes/userServices/__pycache__/register.cpython-311.pyc
+*.pyc
+*.jpg
+*.txt
+/uploads
