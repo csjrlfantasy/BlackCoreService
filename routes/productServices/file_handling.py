@@ -2,21 +2,10 @@ from flask import Blueprint, send_from_directory, request, jsonify
 from flasgger import swag_from
 from werkzeug.utils import secure_filename
 import os
+from config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS  # 新增导入
 
 # 创建独立的蓝图对象
 file_bp = Blueprint('file_services', __name__)
-
-# 配置文件上传参数
-UPLOAD_FOLDER = 'e:/Program Files/pythonProject/BlackCoreService1.0/uploads'
-ALLOWED_EXTENSIONS = {
-    'txt': 'text/plain',
-    'pdf': 'application/pdf',
-    'png': 'image/png',
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'gif': 'image/gif',
-    'jar': 'application/java-archive'  # 新增JAR类型
-}
 
 @file_bp.route('/file_services/upload', methods=['POST'])
 @swag_from({

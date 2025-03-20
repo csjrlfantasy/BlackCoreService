@@ -22,10 +22,14 @@ from routes.userServices.cookie_login import cookie_login_bp
 from routes.userServices.cookie_test import cookie_test_bp
 
 
+from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:heihe123456@localhost/heihe_mall'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config.update({
+    'SQLALCHEMY_DATABASE_URI': SQLALCHEMY_DATABASE_URI,
+    'SQLALCHEMY_TRACK_MODIFICATIONS': SQLALCHEMY_TRACK_MODIFICATIONS,
+    'SECRET_KEY': SECRET_KEY
+})
 
 # 配置Flasgger的Swagger相关设置，修改这里的title等属性来改变顶部文字
 app.config['SWAGGER'] = {
