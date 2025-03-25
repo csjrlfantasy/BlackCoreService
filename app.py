@@ -20,9 +20,9 @@ from routes.productServices.generate_sign import generate_sign  # noqa: F401
 from routes.productServices.file_handling import file_bp
 from routes.userServices.cookie_login import cookie_login_bp
 from routes.userServices.cookie_test import cookie_test_bp
-
-
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY
+import threading
+from tcp_server import start_tcp_server
 
 app = Flask(__name__)
 app.config.update({
@@ -72,7 +72,15 @@ app.register_blueprint(cookie_test_bp)
 
 swagger = Swagger(app)
 
+
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # 创建数据库表
+        db.create_all()
+    
+    # 启动TCP服务线程
+    tcp_thread = threading.Thread(target=start_tcp_server, daemon=True)
+    tcp_thread.start()
+    
+    # 启动Flask应用
     app.run(debug=True, host='0.0.0.0', port=5000)

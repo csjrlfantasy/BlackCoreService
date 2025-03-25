@@ -54,8 +54,13 @@ def get_user_info():
 
     # 获取待支付和已支付订单
     pending_orders = Order.query.filter_by(user_id=user.id, payment_status=0).all()
-    completed_orders = Order.query.filter_by(user_id=user.id, payment_status=1)\
-        .order_by(Order.created_at.desc()).limit(10).all()  # 新增排序和限制
+    # 修改后的查询语句（添加显式排序）
+    completed_orders = Order.query.filter_by(
+        user_id=user.id, 
+        payment_status=1
+    ).order_by(
+        Order.created_at.desc()  # 确保按时间倒序排列
+    ).limit(10).all()
 
     # 获取未生成订单的购物车
     active_cart = Cart.query.filter_by(user_id=user.id).first()
