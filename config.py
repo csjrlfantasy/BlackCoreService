@@ -1,4 +1,21 @@
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 文件服务配置
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+ALLOWED_EXTENSIONS = {
+    'txt': 'text/plain',
+    'pdf': 'application/pdf',
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'gif': 'image/gif',
+    'jar': 'application/java-archive'
+}
+
 # Configuration file (optional)
+# 新增数据库配置
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:heihe123456@localhost/heihe_mall'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = 'your_secret_key'
