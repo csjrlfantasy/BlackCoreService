@@ -51,24 +51,24 @@ def get_user_info():
 
     if not user:
         return jsonify({"error": "Invalid token or user not found"}), 404
-
-    # 获取待支付和已支付订单
+    
+    # 获取订单和购物车数据
     pending_orders = Order.query.filter_by(user_id=user.id, payment_status=0).all()
     completed_orders = Order.query.filter_by(user_id=user.id, payment_status=1).all()
-
-    # 获取未生成订单的购物车
     active_cart = Cart.query.filter_by(user_id=user.id).first()
 
+    # 构建响应数据结构
     response = {
         'user_id': user.id,
         "nickname": user.nickname,
         'balance': user.balance,
+        'avatar_url': '/img/default-avatar.png', 
         'pending_orders': [
             {
                 'order_id': order.id,
                 'product_id': order.product_id,
                 'quantity': order.quantity,
-                'total_price': (order.product_price or 0) * order.quantity  # 避免 NoneType 错误
+                'total_price': (order.product_price or 0) * order.quantity
             } for order in pending_orders
         ],
         'completed_orders': [
@@ -76,7 +76,7 @@ def get_user_info():
                 'order_id': order.id,
                 'product_id': order.product_id,
                 'quantity': order.quantity,
-                'total_price': (order.product_price or 0) * order.quantity  # 避免 NoneType 错误
+                'total_price': (order.product_price or 0) * order.quantity
             } for order in completed_orders
         ],
         'active_cart': {
@@ -90,5 +90,6 @@ def get_user_info():
             ] if active_cart else []
         }
     }
+
     time.sleep(0.3)
     return jsonify(response), 200

@@ -1,0 +1,12 @@
+/* 添加个人中心卡片样式 */
+.profile-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+/* 优化表格悬停效果 */
+.ant-table-row:hover {
+  background-color: #fafafa;
+  cursor: pointer;
+}
