@@ -1,6 +1,6 @@
+import pika
 from flasgger import Swagger
 from flask import Flask
-
 from db import db  # 导入 db
 from routes.userServices.register import register_bp
 from routes.userServices.login import login_bp
@@ -20,67 +20,68 @@ from routes.productServices.generate_sign import generate_sign  # noqa: F401
 from routes.productServices.file_handling import file_bp
 from routes.userServices.cookie_login import cookie_login_bp
 from routes.userServices.cookie_test import cookie_test_bp
-from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY
+from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY, RABBITMQ_CONFIG  # 导入 RABBITMQ_CONFIG
 import threading
 from tcp_server import start_tcp_server
+import json
+from models import User, Product, Order, FlashSaleOrder
+import datetime
+from models import Product  # 假设 Product 模型定义在 models.py 中
 
-app = Flask(__name__)
-app.config.update({
-    'SQLALCHEMY_DATABASE_URI': SQLALCHEMY_DATABASE_URI,
-    'SQLALCHEMY_TRACK_MODIFICATIONS': SQLALCHEMY_TRACK_MODIFICATIONS,
-    'SECRET_KEY': SECRET_KEY
-})
+def create_app():
+    app = Flask(__name__)
+    app.config.update({
+        'SQLALCHEMY_DATABASE_URI': SQLALCHEMY_DATABASE_URI,
+        'SQLALCHEMY_TRACK_MODIFICATIONS': SQLALCHEMY_TRACK_MODIFICATIONS,
+        'SECRET_KEY': SECRET_KEY
+    })
 
-# 配置Flasgger的Swagger相关设置，修改这里的title等属性来改变顶部文字
-app.config['SWAGGER'] = {
-    'title': '黑核商城接口文档',  # 修改为你想要的标题，这个会显示在Swagger UI顶部
-    'uiversion': 3,  # 可以指定Swagger UI的版本，这里示例设为3
-    'description': '这里是关于本接口文档的详细描述内容，可以介绍接口功能、使用场景等信息',
-    'termsOfService': "",  # 服务条款相关链接，可按需填写
-    'contact': {
-        'name': '联系人姓名（可选）',
-        'url': '联系人网址（可选）',
-        'email': '联系人邮箱（可选）'
-    },
-    'license': {
-        'name': '许可证名称（可选）',
-        'url': '许可证相关网址（可选）'
+    # 配置Flasgger的Swagger相关设置，修改这里的title等属性来改变顶部文字
+    app.config['SWAGGER'] = {
+        'title': '黑核商城接口文档',  # 修改为你想要的标题，这个会显示在Swagger UI顶部
+        'uiversion': 3,  # 可以指定Swagger UI的版本，这里示例设为3
+        'description': '这里是关于本接口文档的详细描述内容，可以介绍接口功能、使用场景等信息',
+        'termsOfService': "",  # 服务条款相关链接，可按需填写
+        'contact': {
+            'name': '联系人姓名（可选）',
+            'url': '联系人网址（可选）',
+            'email': '联系人邮箱（可选）'
+        },
+        'license': {
+            'name': '许可证名称（可选）',
+            'url': '许可证相关网址（可选）'
+        }
     }
-}
 
+    db.init_app(app)  # 初始化应用
+    # 注册蓝图
+    app.register_blueprint(add_balance_bp)
+    app.register_blueprint(payment_bp)
+    app.register_blueprint(create_order_bp)
+    app.register_blueprint(add_product_bp)
+    app.register_blueprint(register_bp)
+    app.register_blueprint(login_bp)
+    app.register_blueprint(get_products_bp)
+    app.register_blueprint(flash_sale_bp)
+    app.register_blueprint(delete_product_bp)
+    app.register_blueprint(update_product_stock_bp)
+    app.register_blueprint(add_to_cart_bp)
+    app.register_blueprint(user_info_bp)
+    app.register_blueprint(agreement_sign_bp)
+    app.register_blueprint(get_order_bp)
+    app.register_blueprint(file_bp)
+    app.register_blueprint(cookie_login_bp)
+    app.register_blueprint(cookie_test_bp)
 
-db.init_app(app)  # 初始化应用
-# 注册蓝图
-app.register_blueprint(add_balance_bp)
-app.register_blueprint(payment_bp)
-app.register_blueprint(create_order_bp)
-app.register_blueprint(add_product_bp)
-app.register_blueprint(register_bp)
-app.register_blueprint(login_bp)
-app.register_blueprint(get_products_bp)
-app.register_blueprint(flash_sale_bp)
-app.register_blueprint(delete_product_bp)
-app.register_blueprint(update_product_stock_bp)
-app.register_blueprint(add_to_cart_bp)
-app.register_blueprint(user_info_bp)
-app.register_blueprint(agreement_sign_bp)
-app.register_blueprint(get_order_bp)
-app.register_blueprint(file_bp)
-app.register_blueprint(cookie_login_bp)
-# 在注册蓝图部分添加
-app.register_blueprint(cookie_test_bp)
-
-swagger = Swagger(app)
-
-
+    swagger = Swagger(app)
+    return app
 
 if __name__ == '__main__':
+    app = create_app()
     with app.app_context():
         db.create_all()
-    
-    # 启动TCP服务线程
+
     tcp_thread = threading.Thread(target=start_tcp_server, daemon=True)
     tcp_thread.start()
-    
-    # 启动Flask应用
+
     app.run(debug=True, host='0.0.0.0', port=5000)

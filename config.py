@@ -15,17 +15,38 @@ ALLOWED_EXTENSIONS = {
 }
 
 # Configuration file (optional)
-# 新增数据库配置
+# 修改数据库配置部分
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:heihe123456@localhost/heihe_mall'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = 'your_secret_key'
 
+# 启用连接池配置
+SQLALCHEMY_ENGINE_OPTIONS = {
+    "pool_size": 10,
+    "max_overflow": 20,
+    "pool_timeout": 30,
+    "pool_recycle": 1800
+}
 
 
-# # 添加连接池配置
-# SQLALCHEMY_ENGINE_OPTIONS = {
-#     "pool_size": 10,              # 连接池的大小（默认值为 5）
-#     "max_overflow": 20,           # 在连接池达到最大连接数后可以额外创建的连接数
-#     "pool_timeout": 30,           # 获取连接的超时时间（秒）
-#     "pool_recycle": 1800          # 连接回收时间（秒），防止连接被数据库服务器断开
-# }
+# Redis配置
+REDIS_CONFIG = {
+    'host': '192.168.11.129',
+    'port': 6379,
+    'db': 0,
+    'socket_connect_timeout': 3,
+    'socket_timeout': 3,
+    'retry_on_timeout': True
+}
+
+
+RABBITMQ_CONFIG = {
+    'HOST': '192.168.11.129',
+    'PORT': 5672,
+    'USERNAME': 'qingyun',  # 将USERNAME改为USER以匹配代码中的检查
+    'PASSWORD': 'heihe123456',
+    'VIRTUAL_HOST': '/',
+    'QUEUE_NAME': 'flash_sale_queue',
+    'HEARTBEAT': 600,
+    'BLOCKED_CONNECTION_TIMEOUT': 300
+}

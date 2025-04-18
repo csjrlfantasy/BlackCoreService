@@ -3,77 +3,97 @@ from flasgger import swag_from
 from models import Product
 import time
 from db import db
-import redis
+from utils.redis_util import redis_client  # 从工具类导入
+from math import ceil
 
-# 修改 Redis 连接部分（第8-19行）
-try:
-    # 连接到 Redis
-    redis_client = redis.Redis(
-        host='192.168.11.119',
-        port=6379,
-        db=0,
-        socket_connect_timeout=3  # 添加超时设置
-    )
-    # 测试 Redis 连接
-    redis_client.ping()
-    print("成功连接到 Redis 服务器")
-except Exception as e:  # 捕获所有异常类型
-    print(f"Redis 连接异常: {e}")
-    redis_client = None  # 确保客户端设为None
-    import logging
-    logging.error(f"Redis 初始化失败: {e}，缓存功能不可用")
-    # 移除 sys.exit(1) 保持服务运行
+# 删除所有Redis初始化相关代码，直接使用导入的redis_client
 
-# 在路由函数中修改容错逻辑（删除503返回）
-# 修复代码顺序问题（蓝图对象需要先定义）
-get_products_bp = Blueprint('get_products', __name__)  # 将此行移到路由装饰器之前
+get_products_bp = Blueprint('get_products', __name__)
 
 @get_products_bp.route('/product_services/products', methods=['GET'])
 @swag_from({
     'summary': '查询商品种类',
     'tags': ['商品管理服务'],
-    'description': 'Retrieve all products or a specific product by ID.',
+    'description': '查询单个商品或分页查询商品列表',
     'parameters': [
         {
             'name': 'id',
             'in': 'query',
             'type': 'integer',
             'required': False,
-            'description': 'Product ID to retrieve a specific product.'
+            'description': '商品ID，查询单个商品时使用'
+        },
+        {
+            'name': 'limit',
+            'in': 'query',
+            'type': 'integer',
+            'required': False,
+            'default': 10,
+            'description': '每页商品数量，最大100'
+        },
+        {
+            'name': 'page',
+            'in': 'query',
+            'type': 'integer',
+            'required': False,
+            'default': 1,
+            'description': '页码，从1开始'
         }
     ],
     'responses': {
         200: {
-            'description': 'List of products or a specific product.',
+            'description': '查询成功',
             'examples': {
-                'application/json': {
+                '单个商品': {
+                    'id': 1,
+                    'name': '商品1',
+                    'price': 10.0,
+                    'stock': 100
+                },
+                '分页商品': {
                     'products': [
                         {
                             'id': 1,
-                            'name': 'Product 1',
+                            'name': '商品1',
                             'price': 10.0,
                             'stock': 100
                         },
                         {
                             'id': 2,
-                            'name': 'Product 2',
+                            'name': '商品2',
                             'price': 15.0,
                             'stock': 50
                         }
-                    ]
+                    ],
+                    'total_pages': 5,
+                    'current_page': 1
+                }
+            }
+        },
+        400: {
+            'description': '参数错误',
+            'examples': {
+                'application/json': {
+                    'error': '缺少必要参数'
                 }
             }
         },
         404: {
             'description': '商品未找到'
+        },
+        500: {
+            'description': '服务器内部错误'
         }
     }
 })
-def get_products():  # 确保路由装饰器在函数定义上方
-    product_id = request.args.get('id')  # 获取查询参数中的 id
-    print("获取到的id", product_id)
-
-    start_time = time.time()  # 记录开始时间
+def get_products():
+    product_id = request.args.get('id')
+    limit = min(int(request.args.get('limit', 10)), 100)
+    page = int(request.args.get('page', 1))
+    offset = (page - 1) * limit
+    start_time = time.time()  # 将start_time定义移到函数开头
+    
+    print(f"分页参数 - limit: {limit}, page: {page}, offset: {offset}")
 
     if product_id:
         # 修改为完整的降级处理
@@ -135,19 +155,24 @@ def get_products():  # 确保路由装饰器在函数定义上方
         if not redis_client:
             print("缓存不可用，直接查询数据库")
             time.sleep(3)  # 保持与缓存逻辑一致的模拟耗时
-            products = Product.query.all()
-            response_data = [{
-                'id': product.id,
-                'name': product.name,
-                'price': product.price,
-                'stock': product.stock
-            } for product in products]
+            products = Product.query.offset(offset).limit(limit).all()
+            total = Product.query.count()
+            response_data = {
+                'products': [{
+                    'id': product.id,
+                    'name': product.name,
+                    'price': product.price,
+                    'stock': product.stock
+                } for product in products],
+                'total_pages': ceil(total / limit),
+                'current_page': page
+            }
             elapsed_time = time.time() - start_time
-            print(f"降级查询所有商品耗时: {elapsed_time} 秒")
-            return jsonify(response_data), 200  # 添加返回语句
+            print(f"降级分页查询耗时: {elapsed_time} 秒")
+            return jsonify(response_data), 200
         
         # 以下是正常的缓存处理流程
-        cache_key = 'all_products'
+        cache_key = f'products_page_{page}_limit_{limit}'
         try:
             cached_products = redis_client.get(cache_key)
         except redis.exceptions.ConnectionError as e:
@@ -156,28 +181,28 @@ def get_products():  # 确保路由装饰器在函数定义上方
 
         if cached_products:
             # 如果缓存存在，直接返回缓存数据
-            elapsed_time = time.time() - start_time  # 计算耗时
-            print(f"使用缓存查询所有商品耗时: {elapsed_time} 秒")
+            elapsed_time = time.time() - start_time
+            print(f"使用缓存分页查询耗时: {elapsed_time} 秒")
             return jsonify(eval(cached_products.decode())), 200
         else:
-            time.sleep(3)  # 模拟数据库查询耗时
-            products = Product.query.all()
-            response_data = [
-                {
+            time.sleep(3)
+            products = Product.query.offset(offset).limit(limit).all()
+            total = Product.query.count()
+            response_data = {
+                'products': [{
                     'id': product.id,
                     'name': product.name,
                     'price': product.price,
                     'stock': product.stock
-                } for product in products
-            ]
+                } for product in products],
+                'total_pages': ceil(total / limit),
+                'current_page': page
+            }
             try:
-                # 将数据存入 Redis 缓存
-                redis_client.set(cache_key, str(response_data))
+                redis_client.setex(cache_key, 60, str(response_data))  # 缓存60秒
             except redis.exceptions.ConnectionError as e:
                 print(f"Redis 连接错误: {e}")
                 return jsonify({"message": "Redis 连接错误，数据未缓存"}), 500
-            response = make_response(jsonify(response_data), 200)
-            response.headers['Content-Type'] = 'application/json; charset=utf-8'
-            elapsed_time = time.time() - start_time  # 计算耗时
-            print(f"未使用缓存查询所有商品耗时: {elapsed_time} 秒")
-            return response
+            elapsed_time = time.time() - start_time
+            print(f"未使用缓存分页查询耗时: {elapsed_time} 秒")
+            return jsonify(response_data)
