@@ -72,6 +72,7 @@ def get_user_info():
         'pending_orders': [
             {
                 'order_id': order.id,
+                'main_order_id': order.main_order_id,
                 'product_id': order.product_id,
                 'quantity': order.quantity,
                 'total_price': (order.product_price or 0) * order.quantity
@@ -80,6 +81,7 @@ def get_user_info():
         'completed_orders': [
             {
                 'order_id': order.id,
+                'main_order_id': order.main_order_id,
                 'product_id': order.product_id,
                 'quantity': order.quantity,
                 'total_price': (order.product_price or 0) * order.quantity
