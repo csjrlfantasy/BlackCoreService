@@ -62,8 +62,8 @@ def get_user_info():
         Order.created_at.desc()  # 确保按时间倒序排列
     ).limit(10).all()
 
-    # 获取未生成订单的购物车
-    active_cart = Cart.query.filter_by(user_id=user.id).first()
+    # 获取用户所有未生成订单的购物车，只显示最近的10个
+    active_carts = Cart.query.filter_by(user_id=user.id).order_by(Cart.created_at.desc()).limit(10).all()
 
     response = {
         'user_id': user.id,
@@ -74,7 +74,7 @@ def get_user_info():
                 'order_id': order.id,
                 'product_id': order.product_id,
                 'quantity': order.quantity,
-                'total_price': (order.product_price or 0) * order.quantity  # 避免 NoneType 错误
+                'total_price': (order.product_price or 0) * order.quantity
             } for order in pending_orders
         ],
         'completed_orders': [
@@ -82,19 +82,23 @@ def get_user_info():
                 'order_id': order.id,
                 'product_id': order.product_id,
                 'quantity': order.quantity,
-                'total_price': (order.product_price or 0) * order.quantity  # 避免 NoneType 错误
+                'total_price': (order.product_price or 0) * order.quantity
             } for order in completed_orders
         ],
-        'active_cart': {
-            'cart_id': active_cart.id if active_cart else None,
-            'items': [
-                {
-                    'product_id': item.product_id,
-                    'quantity': item.quantity,
-                    'price': item.product_price
-                } for item in active_cart.cart_items
-            ] if active_cart else []
-        }
+        'active_cart': [
+            {
+                'cart_id': cart.id,
+                'total_price': cart.total_price,
+                'items': [
+                    {
+                        'product_id': item.product_id,
+                        'product_name': item.product_name,
+                        'quantity': item.quantity,
+                        'price': float(item.product_price)
+                    } for item in cart.cart_items
+                ]
+            } for cart in active_carts
+        ]
     }
     time.sleep(0.3)
     return jsonify(response), 200
