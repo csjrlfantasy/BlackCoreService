@@ -65,28 +65,36 @@ def get_user_info():
     # 获取用户所有未生成订单的购物车，只显示最近的10个
     active_carts = Cart.query.filter_by(user_id=user.id).order_by(Cart.created_at.desc()).limit(10).all()
 
+    from collections import defaultdict
+    
+    # 按main_order_id分组订单
+    def group_orders(orders):
+        grouped = defaultdict(list)
+        for order in orders:
+            grouped[order.main_order_id].append(order)
+        return [
+            {
+                'main_order_id': main_id,
+                'orders': [
+                    {
+                        'order_id': o.id,
+                        'product_id': o.product_id,
+                        'quantity': o.quantity,
+                        'total_price': (o.product_price or 0) * o.quantity
+                    } for o in order_list
+                ]
+            } for main_id, order_list in grouped.items()
+        ]
+    
+    pending_orders_grouped = group_orders(pending_orders)
+    completed_orders_grouped = group_orders(completed_orders)
+
     response = {
         'user_id': user.id,
         "nickname": user.nickname,
         'balance': user.balance,
-        'pending_orders': [
-            {
-                'order_id': order.id,
-                'main_order_id': order.main_order_id,
-                'product_id': order.product_id,
-                'quantity': order.quantity,
-                'total_price': (order.product_price or 0) * order.quantity
-            } for order in pending_orders
-        ],
-        'completed_orders': [
-            {
-                'order_id': order.id,
-                'main_order_id': order.main_order_id,
-                'product_id': order.product_id,
-                'quantity': order.quantity,
-                'total_price': (order.product_price or 0) * order.quantity
-            } for order in completed_orders
-        ],
+        'pending_orders': pending_orders_grouped,
+        'completed_orders': completed_orders_grouped,
         'active_cart': [
             {
                 'cart_id': cart.id,
