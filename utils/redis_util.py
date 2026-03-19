@@ -1,9 +1,12 @@
 import redis
 import logging
-from config import REDIS_CONFIG
+from config import REDIS_CONFIG, ENABLE_REDIS
 
 def init_redis_client():
     """初始化Redis客户端"""
+    if not ENABLE_REDIS:
+        print("Redis连接已禁用，跳过连接")
+        return None
     try:
         client = redis.Redis(**REDIS_CONFIG)
         client.ping()

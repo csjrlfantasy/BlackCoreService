@@ -39,6 +39,10 @@ REDIS_CONFIG = {
     'retry_on_timeout': True
 }
 
+# 服务开关配置
+ENABLE_TCP_SERVER = True  # TCP服务器开关，设为False可跳过TCP服务启动
+ENABLE_REDIS = True  # Redis连接开关，设为False可跳过Redis连接
+
 
 RABBITMQ_CONFIG = {
     'HOST': '192.168.11.129',
